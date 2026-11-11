@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import { withPayload } from '@payloadcms/next/withPayload'
+
+/** @type {import('next').NextConfig} */
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -17,4 +20,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// export default nextConfig;
+
+
+// const nextConfig = {
+//   // Your Next.js config here
+// }
+
+// Make sure you wrap your `nextConfig`
+// with the `withPayload` plugin
+export default withPayload(nextConfig) 
