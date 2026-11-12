@@ -1,4 +1,4 @@
-'server-only'
+import 'server-only'
 
 import { User } from "@/payload-types";
 import isEmail from 'validator/lib/isEmail';
