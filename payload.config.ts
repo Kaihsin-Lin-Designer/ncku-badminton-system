@@ -2,6 +2,7 @@ import sharp from 'sharp'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { buildConfig } from 'payload'
+import { resendAdapter } from '@payloadcms/email-resend'
 
 import Admins from './collection/Admins'
 import Users from "./collection/Users"
@@ -30,6 +31,11 @@ export default buildConfig({
     pool: {
         connectionString: process.env.DATABASE_URL || '',
     }
+  }),
+  email: resendAdapter({
+    defaultFromAddress: 'mail@ncku-badminton.org',
+    defaultFromName: 'NCKU Badminton 成大羽球暨校友會',
+    apiKey: process.env.RESEND_API_KEY || '',
   }),
   // If you want to resize images, crop, set focal point, etc.
   // make sure to install it and pass it to the config.
