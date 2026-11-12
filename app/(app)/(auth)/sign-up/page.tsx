@@ -37,7 +37,7 @@ const SignUpPage = () => {
                 toast.success('註冊成功', {
                     position: "top-center",
                 })
-                redirect("/login");
+                redirect("/need-email-verification");
             }
             else {
                 console.error(signUpResult.reason)
@@ -54,69 +54,55 @@ const SignUpPage = () => {
 
     return(
         <>
-            <main
-                className="bg-neutral-200"
-            >
-                <div className="container min-h-lvh flex items-center justify-center">
-                    <FormCard>
-                        <CardHeader>
-                            <CardTitle>
-                                Sign Up
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent
-                            className="flex flex-col gap-4"
-                        >
-                            <div
-                                className="flex justify-center"
-                            >
-                                <GoogleOAuthButton/>
-                            </div>
-                            <FormSeparator>或以 Email 註冊</FormSeparator>
-                            <form
-                                className="flex flex-col gap-8"
-                                onSubmit={(e) => handleSubmit(e)}
-                            >
-                                <FormRow>
-                                    <Label htmlFor='email'>Email</Label>
-                                    <Input id='email' type='email' name="email" placeholder='mail@example.com'/>
+            <FormCard>
+                <CardHeader>
+                    <CardTitle>
+                        Sign Up
+                    </CardTitle>
+                </CardHeader>
+                <CardContent
+                    className="flex flex-col gap-4"
+                >
+                    <div
+                        className="flex justify-center"
+                    >
+                        <GoogleOAuthButton/>
+                    </div>
+                    <FormSeparator>或以 Email 註冊</FormSeparator>
+                    <form
+                        className="flex flex-col gap-8"
+                        onSubmit={(e) => handleSubmit(e)}
+                    >
+                        <FormRow>
+                            <Label htmlFor='email'>Email</Label>
+                            <Input id='email' type='email' name="email" placeholder='mail@example.com'/>
 
-                                </FormRow>
-                                {/* <FormRow>
-                                    <Label htmlFor='password'>Password</Label>
-                                    <Input id='password' type='password' />
-                                </FormRow>
-                                <FormRow>
-                                    <Label htmlFor='repeat-password'>Password</Label>
-                                    <Input id='repeat-password' type='password' />
-                                </FormRow> */}
-                                <FormRow>
-                                    <Button type="submit"
-                                        disabled={isPending}
-                                    >
-                                        Sign Up
-                                    </Button>
-                                </FormRow>
-                            </form>
-                            <div
-                                className="flex justify-center items-center"
+                        </FormRow>
+                        <FormRow>
+                            <Button type="submit"
+                                disabled={isPending}
                             >
-                                已有帳號？
-                                <Button
-                                    variant="link"
-                                    render={
-                                        <Link
-                                            href="/login"
-                                        >登入</Link>
-                                    }
-                                />
-                                
-                            </div>
-                        </CardContent>
+                                Sign Up
+                            </Button>
+                        </FormRow>
+                    </form>
+                    <div
+                        className="flex justify-center items-center"
+                    >
+                        已有帳號？
+                        <Button
+                            variant="link"
+                            render={
+                                <Link
+                                    href="/login"
+                                >登入</Link>
+                            }
+                        />
                         
-                    </FormCard>
-                </div>
-            </main>
+                    </div>
+                </CardContent>
+                
+            </FormCard>
         </>
     )
 }

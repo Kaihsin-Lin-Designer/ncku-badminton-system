@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { payloadPreLogin, PreLoginResult } from "@/lib/auth/payload-login";
 import { useState, useTransition } from "react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 type Field = "email" | "password" | "none"
 
 const LoginPage = () => {
+    const router = useRouter();
 
     const [isPending, startTransition] = useTransition();
     const [result, setResult] = useState<PreLoginResult | null>(null);
@@ -39,10 +40,7 @@ const LoginPage = () => {
             console.log("submit")
             const result = await payloadPreLogin(email);
             if (result.ok) {
-                toast.success("登入成功", {
-                    position: "top-center"
-                })
-                return redirect("/api/users/me");
+                return router.push("/login/password");
             }
 
             console.log(result)
@@ -55,63 +53,58 @@ const LoginPage = () => {
 
     return(
         <>
-            <main
-                className="bg-neutral-200"
-            >
-                <div className="container min-h-lvh flex items-center justify-center">
-                    <FormCard>
-                        <CardHeader>
-                            <CardTitle>
-                                Login
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent
-                            className="flex flex-col gap-4"
-                        >
-                            <div
-                                className="flex justify-center"
-                            >
-                                <GoogleOAuthButton/>
-                            </div>
-                            <FormSeparator>或以密碼登入</FormSeparator>
-                            <form
-                                className="flex flex-col gap-8"
-                                onSubmit={(e) => handleLogin(e)}
-                            >
-                                <FormRow>
-                                    <Label htmlFor='email'>Email</Label>
-                                    <Input id='email' type='email' name="email" placeholder='mail@example.com' 
-                                        aria-invalid={invalidField === "email"}
-                                        onFocus={() => setInvalidField("none")}
-                                    />
-                                    {invalidField === "password" &&
-                                        <p className='text-muted-foreground peer-aria-invalid:text-destructive text-xs'>無效的 email 格式</p>
-                                    }
-                                </FormRow>
-                                <FormRow>
-                                    <Button disabled={isPending} type="submit">
-                                        Login
-                                    </Button>
-                                </FormRow>
-                            </form>
-                            <div
-                                className="flex justify-center items-center"
-                            >
-                                沒有帳號？
-                                <Button
-                                    variant="link"
-                                    render={
-                                        <Link
-                                            href="/sign-up"
-                                        >註冊</Link>
-                                    }
-                                />
-                                
-                            </div>
-                        </CardContent>
-                    </FormCard>
-                </div>
-            </main>
+
+            <FormCard>
+                <CardHeader>
+                    <CardTitle>
+                        Login
+                    </CardTitle>
+                </CardHeader>
+                <CardContent
+                    className="flex flex-col gap-4"
+                >
+                    <div
+                        className="flex justify-center"
+                    >
+                        <GoogleOAuthButton/>
+                    </div>
+                    <FormSeparator>或以 Email 登入</FormSeparator>
+                    <form
+                        className="flex flex-col gap-8"
+                        onSubmit={(e) => handleLogin(e)}
+                    >
+                        <FormRow>
+                            <Label htmlFor='email'>Email</Label>
+                            <Input id='email' type='email' name="email" placeholder='mail@example.com' 
+                                aria-invalid={invalidField === "email"}
+                                onFocus={() => setInvalidField("none")}
+                            />
+                            {invalidField === "password" &&
+                                <p className='text-muted-foreground peer-aria-invalid:text-destructive text-xs'>無效的 email 格式</p>
+                            }
+                        </FormRow>
+                        <FormRow>
+                            <Button disabled={isPending} type="submit">
+                                下一步
+                            </Button>
+                        </FormRow>
+                    </form>
+                    <div
+                        className="flex justify-center items-center"
+                    >
+                        沒有帳號？
+                        <Button
+                            variant="link"
+                            render={
+                                <Link
+                                    href="/sign-up"
+                                >註冊</Link>
+                            }
+                        />
+                        
+                    </div>
+                </CardContent>
+            </FormCard>
         </>
     )
 }
