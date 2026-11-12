@@ -30,16 +30,17 @@ const SignUpPage = () => {
         if (!email) return;
 
         startTransition( async () => {
-            const result = await payloadSignUp(email);
-            console.log("end signup")
-            setResult(result);
-            if (result?.ok) {
+            const signUpResult = await payloadSignUp(email);
+
+            setResult(signUpResult);
+            if (signUpResult?.ok) {
                 toast.success('註冊成功', {
                     position: "top-center",
                 })
                 redirect("/login");
             }
             else {
+                console.error(signUpResult.reason)
                 toast.error('註冊失敗', {
                     position: "top-center",
                     description: "請檢查 email 輸入是否正確，或稍後再試。"

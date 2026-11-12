@@ -1,19 +1,20 @@
 'use server'
 
 import { User } from "@/payload-types";
-import type { Payload } from "payload";
 import isEmail from 'validator/lib/isEmail';
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import crypto from "crypto"
+import { payloadSendVerifyMail, SendVerifyMailResult } from "./payload-server-only";
 
 export type SignUpResult = {
-    ok: true,
-    id: number
+    ok: true
 } | {
     ok: false,
-    reason: "Invalid email format" | "User email duplicated" | "New user create fail"
+    reason: "Invalid email format" | "Sign up failed" | Extract<SendVerifyMailResult, {ok: false}>["reason"]
 }
+
+const payload = await getPayload({config});
 
 
 /**
@@ -22,9 +23,10 @@ export type SignUpResult = {
  * @returns SignUpResult
  */
 export async function payloadSignUp(email: User["email"]): Promise<SignUpResult> {
-    const payload = await getPayload({config});
+    // const payload = await getPayload({config});
 
     // check email format
+    email = email.trim().toLowerCase();
     if (!isEmail(email)) {
         return {
             ok: false,
@@ -40,32 +42,49 @@ export async function payloadSignUp(email: User["email"]): Promise<SignUpResult>
         }
     })
 
-    if (duplicatedUsers.docs.length >= 1) {
+    let user: User;
+    // email exists but is not verified
+    if (duplicatedUsers.docs.length >= 1 && !duplicatedUsers.docs[0]._verified) {
+        user = duplicatedUsers.docs[0];
+    }
+    // email exists and is verified
+    else if (duplicatedUsers.docs.length >= 1 && duplicatedUsers.docs[0]._verified) {
         return {
             ok: false,
-            reason: "User email duplicated"
+            reason: "Sign up failed"
+        }
+    }
+    // email does not exist
+    else {
+        user = await payload.create({
+            collection: "users",
+            data: {
+                email: email,
+                password: crypto.randomBytes(64).toString('hex'),
+                review_status: "not_started"
+            },
+        })
+
+    }
+
+
+    if (!user || typeof user !== "object") {
+        return {
+            ok: false,
+            reason: "Sign up failed"
         }
     }
 
-    const newUser = await payload.create({
-        collection: "users",
-        data: {
-            email: email,
-            password: "rootncku",
-            review_status: "not_started"
-        },
-    })
+    const sendVerifyMailResult = await payloadSendVerifyMail(user);
 
-    if (!newUser || typeof newUser !== "object") {
-        return {
-            ok: false,
-            reason: "New user create fail"
-        }
+    if (!sendVerifyMailResult.ok) return {
+        ok: false,
+        reason: sendVerifyMailResult.reason
     }
 
 
     return {
         ok: true,
-        id: newUser.id
     };
 }
+
