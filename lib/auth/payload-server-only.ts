@@ -5,6 +5,7 @@ import isEmail from 'validator/lib/isEmail';
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import crypto from "crypto"
+import { headers as getHeaders } from 'next/headers'
 
 export type SignUpResult = {
     ok: true,
@@ -78,4 +79,42 @@ export async function payloadSendVerifyMail(user: User): Promise<SendVerifyMailR
             reason: "Update token or send email failed"
         }
     }
+}
+
+
+
+export async function payloadGetCurrentUser(): Promise<User | null> {
+    const payload = await getPayload({config});
+    const headers = await getHeaders();
+
+    try {
+        const {user} = await payload.auth({headers: headers});
+        if (!user || user.collection !== "users") return null;
+        
+        return user;
+    }
+    catch (error) {
+        console.error(error);
+        return null;
+    }
+
+}
+
+export async function payloadGetUserByEmail(email: User["email"]): Promise<User | null> {
+    email = email.trim().toLowerCase();
+    if (!isEmail(email)) return null;
+
+    const payload = await getPayload({config});
+    const headers = await getHeaders();
+
+    const users = await payload.find({
+        collection: "users",
+        where: {
+            email: {equals: email}
+        }
+    })
+
+    const user = users.docs[0];
+    if (!user) return null;
+    return user
 }

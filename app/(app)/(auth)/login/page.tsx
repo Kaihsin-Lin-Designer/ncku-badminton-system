@@ -8,7 +8,7 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { payloadLogin, LoginResult } from "@/lib/auth/payload-login";
+import { payloadPreLogin, PreLoginResult } from "@/lib/auth/payload-login";
 import { useState, useTransition } from "react";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ type Field = "email" | "password" | "none"
 const LoginPage = () => {
 
     const [isPending, startTransition] = useTransition();
-    const [result, setResult] = useState<LoginResult | null>(null);
+    const [result, setResult] = useState<PreLoginResult | null>(null);
     const [invalidField, setInvalidField] = useState<Field>("none");
 
     const handleLogin = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -28,21 +28,16 @@ const LoginPage = () => {
 
         const fd = new FormData(e.currentTarget);
         const email = fd.get("email")?.toString();
-        const password = fd.get("password")?.toString();
 
         if (!email || typeof email !== "string") {
             setInvalidField("email");
-            return;
-        }
-        if (!password || typeof password !== "string") {
-            setInvalidField("password");
             return;
         }
 
 
         startTransition(async () => {
             console.log("submit")
-            const result = await payloadLogin(email, password);
+            const result = await payloadPreLogin(email);
             if (result.ok) {
                 toast.success("登入成功", {
                     position: "top-center"
@@ -52,20 +47,9 @@ const LoginPage = () => {
 
             console.log(result)
 
-            switch (result.reason) {
-                case "Invalid email":
-                    setInvalidField("email");
-                    break;
-                case "Invalid password":
-                    setInvalidField("password");
-                    break;
-                default:
-                    toast.error("登入失敗", {
-                        position: "top-center",
-                        description: "可能是錯誤的帳號或密碼"
-                    })
-                    break;
-            }
+            toast.error("登入失敗", {
+                position: "top-center",
+            })
         })
     }
 
@@ -102,26 +86,6 @@ const LoginPage = () => {
                                     />
                                     {invalidField === "password" &&
                                         <p className='text-muted-foreground peer-aria-invalid:text-destructive text-xs'>無效的 email 格式</p>
-                                    }
-                                </FormRow>
-                                <FormRow>
-                                    <div className='flex items-center justify-between'>
-                                        <Label htmlFor='password'>Password</Label>
-                                        <Button
-                                            variant="link"
-                                            render={
-                                                <Link
-                                                    href="/forgot-password"
-                                                >忘記密碼?</Link>
-                                            }
-                                        />
-                                    </div>
-                                    <Input id='password' type='password' name="password" 
-                                        aria-invalid={invalidField === "password"}
-                                        onFocus={() => setInvalidField("none")}
-                                    />
-                                    {invalidField === "password" &&
-                                        <p className='text-muted-foreground peer-aria-invalid:text-destructive text-xs'>無效的密碼</p>
                                     }
                                 </FormRow>
                                 <FormRow>

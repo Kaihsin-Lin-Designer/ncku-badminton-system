@@ -1,11 +1,17 @@
-import { Card, CardContent, CardTitle, CardHeader } from "@/components/ui/card";
+import 'server-only'
+import { Card, CardContent, CardTitle, CardHeader, CardDescription } from "@/components/ui/card";
 import { redirect } from "next/navigation";
 import { payloadGetUser } from "@/lib/auth/payload-common";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import Link from "next/link";
-import { Suspense } from "react";
 import { User } from "@/payload-types";
+import { requireUserPreLogin } from '@/lib/auth/require-login';
+import { payloadSendVerifyMail } from '@/lib/auth/payload-server-only';
+import { payloadGetUserByEmail } from '@/lib/auth/payload-server-only';
+import { ResendVerifyEmailButton } from './client';
+
 
 export const instant = false
 
@@ -14,29 +20,26 @@ const NeedEmailVerificationPage = async ({
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) => {
+    const preLoginData = await requireUserPreLogin();
 
-    const { email } = await searchParams
-    if (!email || typeof email !== 'string') redirect('/login')
+    const {email} = preLoginData;
 
-    const res = await payloadGetUser({ email })
-    if (!res.ok || res.user._verified) redirect('/login')
+    const user = await payloadGetUserByEmail(email);
+
+    if (!user) redirect("/login?reason=login-required");
+
 
     return (
         <main className="bg-neutral-200">
         <div className="container min-h-lvh flex items-center justify-center">
             <Card className="min-w-lg">
                 <CardHeader>
-                    <CardTitle>已寄送驗證信至 {res.user.email}</CardTitle>
+                    <CardTitle>已寄送驗證信至{user.email}</CardTitle>
+                    <CardDescription>請至信箱收件匣完成驗證</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
                     <p>沒有收到驗證信嗎？</p>
-                    {/* <ResendVerificationButton email={res.user.email} /> */}
-                    <Separator />
-                    <div className="flex justify-center items-center gap-4">
-                        <Button variant="link" render={<Link href="/login">登入</Link>} />
-                        <span>或</span>
-                        <Button variant="link" render={<Link href="/sign-up">註冊</Link>} />
-                    </div>
+                    <ResendVerifyEmailButton/>
                 </CardContent>
             </Card>
         </div>

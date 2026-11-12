@@ -4,6 +4,32 @@ import { getPayload } from "payload"
 import config from "@payload-config"
 import type { User } from "@/payload-types";
 import isEmail from "validator/lib/isEmail";
+import { payloadGetUserByEmail } from './payload-server-only';
+import { setPreLoginData } from './pre-login';
+
+export type PreLoginResult = {
+    ok: true,
+} | {
+    ok: false,
+    reason: "Invalid email"
+}
+
+export async function payloadPreLogin(email: User["email"]): Promise<PreLoginResult> {
+    email = email.trim().toLowerCase();
+    if (!isEmail(email)) return {
+        ok: false,
+        reason: "Invalid email"
+    }
+
+    const user = await payloadGetUserByEmail(email);
+    if (!user) return {
+        ok: false,
+        reason: "Invalid email"
+    }
+
+    await setPreLoginData({email: user.email})
+    return {ok: true}
+}
 
 export type LoginResult = {
     ok: true,
@@ -79,8 +105,4 @@ export async function payloadLogin(email: User["email"], password: User["passwor
             reason: "Login fail"
         }
     }
-
-
-
-
 }
