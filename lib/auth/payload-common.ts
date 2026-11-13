@@ -1,8 +1,9 @@
 'server-only'
-import { getPayload } from "payload"
+import { createLocalReq, getPayload } from "payload"
 import config from "@payload-config"
 import type { User } from "@/payload-types";
-import type { Where } from "payload";
+import type { Payload, PayloadRequest, Where } from "payload";
+import { headers as getHeaders } from "next/headers";
 
 
 
@@ -69,4 +70,21 @@ export async function payloadGetUser({
         }
     }
 
+}
+
+export async function payloadGetUserFromHeaders(payload: Payload): Promise<User | null> {
+    const headers = await getHeaders();
+
+    const {user} = await payload.auth({headers});
+    if (user?.collection !== "users") return null;
+    return user;
+}
+
+export async function payloadGetLocalReq(payload: Payload): Promise<PayloadRequest | null> {
+    const user = await payloadGetUserFromHeaders(payload);
+
+    if (!user) return null;
+
+    const req = await createLocalReq({user: user}, payload);
+    return req;
 }

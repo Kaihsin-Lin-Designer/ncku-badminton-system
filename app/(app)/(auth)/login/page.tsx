@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { payloadPreLogin, PreLoginResult } from "@/lib/auth/payload-login";
-import { useState, useTransition } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useState, useTransition, useEffect, Suspense } from "react";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { parseRedirectReason } from "@/lib/auth/utils"
 
 
 
@@ -20,9 +21,13 @@ type Field = "email" | "password" | "none"
 const LoginPage = () => {
     const router = useRouter();
 
+
     const [isPending, startTransition] = useTransition();
     const [result, setResult] = useState<PreLoginResult | null>(null);
     const [invalidField, setInvalidField] = useState<Field>("none");
+
+
+
 
     const handleLogin = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -53,7 +58,9 @@ const LoginPage = () => {
 
     return(
         <>
-
+            <Suspense>
+                <LoginToast/>
+            </Suspense>
             <FormCard>
                 <CardHeader>
                     <CardTitle>
@@ -109,4 +116,18 @@ const LoginPage = () => {
     )
 }
 
-export default LoginPage
+export default LoginPage;
+
+const LoginToast = () => {
+    const searchParams = useSearchParams()
+    const toastMessage = parseRedirectReason(searchParams.get("reason"));
+    useEffect(() => {
+        if (toastMessage) {
+            toast.info(toastMessage, {
+                position: "top-center"
+            })
+        }
+    }, [toastMessage])
+
+    return <></>
+}

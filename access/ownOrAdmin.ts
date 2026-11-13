@@ -2,13 +2,13 @@ import { Access, AccessArgs } from "payload";
 import {isAdmin} from "./admins";
 import {isUser} from "./users"
 
-const ownOrAdmin = (field: string) => ({req: {user}}: AccessArgs): ReturnType<Access> => {
+const ownOrAdmin = (field: string) => ({req}: AccessArgs): ReturnType<Access> => {
 
-    if (isAdmin(user)) return true;
+    if (isAdmin({req})) return true;
 
-    if (!isUser(user) || !user) return false;
+    if (!isUser(req.user) || !req.user) return false;
     
-    return {[field]: {equals: user.id}}
+    return {[field]: {equals: req.user.id}}
 }
 
 export default ownOrAdmin

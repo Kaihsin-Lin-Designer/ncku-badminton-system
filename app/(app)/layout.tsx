@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AlertContextProvider, AlertUi } from "./context/AlertContext";
 import { Toaster } from "sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -30,10 +31,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         
-        <AlertContextProvider>
+        <TooltipProvider>
           {/* <AlertUi/> */}
           {children}
-        </AlertContextProvider>
+        </TooltipProvider>
         <Toaster/>
       </body>
     </html>

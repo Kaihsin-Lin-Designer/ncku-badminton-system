@@ -71,6 +71,8 @@ export interface Config {
     admins: Admin;
     users: User;
     accounts: Account;
+    user_profiles: UserProfile;
+    departments: Department;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -81,6 +83,8 @@ export interface Config {
     admins: AdminsSelect<false> | AdminsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     accounts: AccountsSelect<false> | AccountsSelect<true>;
+    user_profiles: UserProfilesSelect<false> | UserProfilesSelect<true>;
+    departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -172,7 +176,8 @@ export interface Admin {
 export interface User {
   id: number;
   email_verified_at?: string | null;
-  review_status: 'not_started' | 'review' | 'returning' | 'rejected' | 'approved';
+  review_status: 'not_started' | 'reviewing' | 'returning' | 'rejected' | 'approved' | 'suspended';
+  roles: ('admin' | 'member_reviewer' | 'event_reviewer' | 'financial _reviewer' | 'board_member' | 'member')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -204,6 +209,34 @@ export interface Account {
   user: number | User;
   provider: 'google';
   provider_account_id: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "user_profiles".
+ */
+export interface UserProfile {
+  id: number;
+  user: number | User;
+  family_name: string;
+  given_name: string;
+  full_name?: string | null;
+  nickname?: string | null;
+  birthday: string;
+  department: number | Department;
+  class_of?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "departments".
+ */
+export interface Department {
+  id: number;
+  name: string;
+  acronym: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -242,6 +275,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'accounts';
         value: number | Account;
+      } | null)
+    | ({
+        relationTo: 'user_profiles';
+        value: number | UserProfile;
+      } | null)
+    | ({
+        relationTo: 'departments';
+        value: number | Department;
       } | null);
   globalSlug?: string | null;
   user:
@@ -326,6 +367,7 @@ export interface AdminsSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   email_verified_at?: T;
   review_status?: T;
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -354,6 +396,32 @@ export interface AccountsSelect<T extends boolean = true> {
   user?: T;
   provider?: T;
   provider_account_id?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "user_profiles_select".
+ */
+export interface UserProfilesSelect<T extends boolean = true> {
+  user?: T;
+  family_name?: T;
+  given_name?: T;
+  full_name?: T;
+  nickname?: T;
+  birthday?: T;
+  department?: T;
+  class_of?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "departments_select".
+ */
+export interface DepartmentsSelect<T extends boolean = true> {
+  name?: T;
+  acronym?: T;
   updatedAt?: T;
   createdAt?: T;
 }

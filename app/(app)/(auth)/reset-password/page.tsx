@@ -3,6 +3,7 @@ import { ResetPasswordForm } from './client';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { payloadVerifyResetPasswordToken } from '@/lib/auth/payload-server-only';
+import { redirectLogin } from '@/lib/auth/utils';
 
 const ResetPasswordPage = async ({
   searchParams,
@@ -10,14 +11,9 @@ const ResetPasswordPage = async ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) => {
     return(
-      <main className='bg-neutral-200'>
-        <div className="container min-h-lvh flex items-center justify-center">
-          <Suspense fallback={"載入中"}>
-            <ResetPasswordSection searchParams={searchParams}/>
-          </Suspense>
-        </div>
-
-      </main>
+      <Suspense fallback={"載入中"}>
+        <ResetPasswordSection searchParams={searchParams}/>
+      </Suspense>
     )
 
     
@@ -32,7 +28,7 @@ const ResetPasswordSection = async ({
 }) => {
     const {token} = await searchParams;
     if (!token || Array.isArray(token)) {
-      redirect("/login");
+      redirectLogin();
     }
 
     const result = await payloadVerifyResetPasswordToken(token);

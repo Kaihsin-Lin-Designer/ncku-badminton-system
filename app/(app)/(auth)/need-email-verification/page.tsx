@@ -5,6 +5,7 @@ import { requireUserPreLogin } from '@/lib/auth/require-login';
 import { payloadGetUserByEmail } from '@/lib/auth/payload-server-only';
 import { ResendVerifyEmailButton } from './client';
 import { Suspense } from 'react';
+import { redirectLogin } from '@/lib/auth/utils';
 
 
 export const instant = false
@@ -35,10 +36,10 @@ const NeedEmailVerificationSection = async ({
 
     const user = await payloadGetUserByEmail(email);
 
-    if (!user) redirect("/login?reason=login-required");
+    if (!user) redirectLogin("login-required");
 
     if (user._verified) {
-        redirect("/login?reason=already-verified");
+        redirectLogin("already-verified");
     }
 
 

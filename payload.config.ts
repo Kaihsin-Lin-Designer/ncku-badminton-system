@@ -7,6 +7,8 @@ import { resendAdapter } from '@payloadcms/email-resend'
 import Admins from './collection/Admins'
 import Users from "./collection/Users"
 import Accounts from './collection/Accounts'
+import Departments from './collection/Departments'
+import UserProfiles from './collection/UserProfiles'
 
 export default buildConfig({
   // If you'd like to use Rich Text, pass your editor here
@@ -16,7 +18,9 @@ export default buildConfig({
   collections: [
     Admins,
     Users,
-    Accounts
+    Accounts,
+    UserProfiles,
+    Departments
   ],
 
   admin: {
